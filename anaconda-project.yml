@@ -1,7 +1,11 @@
 name: CellHeapReproducibility
 icon:
 description:
-commands: {}
+commands:
+  ipv:
+    unix: "${PROJECT_DIR}/Source/Phase1/ipv"
+  fasterq:
+    unix: "${PROJECT_DIR}/Source/Phase1/fasterq"
 variables: {}
 services: {}
 downloads: {}
