@@ -1,20 +1,20 @@
+#!/usr/bin/env bash
+
 SAMPLE="$1"
+OUTDIR="${PROJECT_DIR}/out/phase1"
 
-#Exibe hora da submissão ao sbatch e informacoes adicionais
-date 
-echo Info-Preftch "$SAMPLE"
-
-cd "$PROJECT_DIR"
+echo Dump info and prefetch "$SAMPLE"
+date
 
 time vdb-dump --info "$SAMPLE"
 
-time prefetch -X 1000000000  "$SAMPLE" -O ./sra 
+time prefetch --max-size 1000000000  "$SAMPLE" --output-file "${OUTDIR}/${SAMPLE}.sra"
 
-echo Validate 
+echo Validate "$SAMPLE"
 date
 
-time vdb-validate "./sra/${SAMPLE}.sra"
+time vdb-validate "${OUTDIR}/${SAMPLE}.sra"
 
-echo Final "$SAMPLE" validation
+echo "$SAMPLE" validation completed
 date
 

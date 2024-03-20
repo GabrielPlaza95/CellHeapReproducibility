@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+SAMPLE="$1"
+OUTDIR="${PROJECT_DIR}/out/phase1"
+
+echo Dump fastq files from "${SAMPLE}.sra"
+date
+
+time fasterq-dump "${OUTDIR}/${SAMPLE}.sra" --threads 24 --split-files --temp /tmp --outdir "$OUTDIR"
+
+echo Compress "$SAMPLE" fastq files
+date
+
+gzip "${OUTDIR}/${SAMPLE}_1.fastq"
+gzip "${OUTDIR}/${SAMPLE}_2.fastq"
+
+mv "${OUTDIR}/${SAMPLE}_1.fastq.gz" "${OUTDIR}/${SAMPLE}_S1_L00_R1_001.fastq.gz"
+mv "${OUTDIR}/${SAMPLE}_2.fastq.gz" "${OUTDIR}/${SAMPLE}_S1_L00_R2_001.fastq.gz"
+
+echo Compressed "$SAMPLE" fastq files obtained
+date

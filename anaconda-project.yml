@@ -5,7 +5,7 @@ commands:
   ipv:
     unix: "${PROJECT_DIR}/Source/Phase1/ipv"
   fasterq:
-    unix: "${PROJECT_DIR}/Source/Phase1/fasterq"
+    unix: "${PROJECT_DIR}/Source/Phase1/fastq"
 variables: {}
 services: {}
 downloads: {}
