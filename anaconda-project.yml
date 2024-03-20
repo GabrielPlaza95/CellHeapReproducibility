@@ -4,7 +4,7 @@ description:
 commands:
   ipv:
     unix: "${PROJECT_DIR}/Source/Phase1/ipv"
-  fasterq:
+  fastq:
     unix: "${PROJECT_DIR}/Source/Phase1/fastq"
 variables: {}
 services: {}

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 SAMPLE="$1"
 OUTDIR="${PROJECT_DIR}/out/phase1"
 
