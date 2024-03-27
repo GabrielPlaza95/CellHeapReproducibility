@@ -3,19 +3,21 @@
 set -euo pipefail
 
 SAMPLE="$1"
-OUTDIR="${PROJECT_DIR}/out/phase1"
+OUT_DIR="${PROJECT_DIR}/out/phase1"
 
 echo Dump info and prefetch "$SAMPLE"
 date
 
 time vdb-dump --info "$SAMPLE"
 
-time prefetch --max-size 1000000000  "$SAMPLE" --output-file "${OUTDIR}/${SAMPLE}.sra"
+time prefetch "$SAMPLE" \
+	--max-size 1000000000 \
+	--output-file "${OUT_DIR}/${SAMPLE}.sra"
 
 echo Validate "$SAMPLE"
 date
 
-time vdb-validate "${OUTDIR}/${SAMPLE}.sra"
+time vdb-validate "${OUT_DIR}/${SAMPLE}.sra"
 
 echo "$SAMPLE" validation completed
 date

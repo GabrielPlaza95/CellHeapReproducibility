@@ -1,45 +1,71 @@
 name: CellHeapReproducibility
-icon:
-description:
+description: >
+  CellHeap is a configurable, portable, and robust workflow for scRNA-seq customizable
+  analyses, with quality control throughout the execution steps, ensuring reliable
+  results and deployable on supercomputers.
 commands:
   ipv:
-    unix: "${PROJECT_DIR}/Source/Phase1/ipv"
+    unix: ${PROJECT_DIR}/Source/Phase1/ipv
+    env_spec: phase1
   fastq:
-    unix: "${PROJECT_DIR}/Source/Phase1/fastq"
-variables: {}
-services: {}
-downloads: {}
-packages:
-- sra-tools
-- r-base
-- r-seurat
-- r-dplyr
-- r-patchwork
-- r-scales
-- r-cowplot
-- r-ggplot2
-- r-rcolorbrewer
-- r-gplots
-- r-soupx
-- r-conflicted
-- r-matrix
-- r-reshape2
-- r-cellassign
-- r-loomr
-- bioconductor-dropletutils
-- bioconductor-mast
-- bioconductor-singlecellexperiment
-- bioconductor-org.hs.eg.db
-- bioconductor-edger
-- bioconductor-scater
+    unix: ${PROJECT_DIR}/Source/Phase1/fastq
+    env_spec: phase1
+  crc:
+    unix: ${PROJECT_DIR}/Source/Phase2/crc
+    env_spec: phase2
 channels:
 - conda-forge
 - bioconda
 platforms:
 - linux-64
+variables:
+    CELLRANGER_PATH:
+      description: Full path to the cellranger executable.
+      encrypted: false
+
 env_specs:
-  default:
-    description: Default environment spec for running commands
+  phase1:
+    description: Phase 1 environment.
+    packages:
+    - sra-tools
+  phase2:
+    description: Phase 2 environment.
     packages: []
-    channels: []
-    platforms: []
+  phase3:
+    description: Phase 3 environment.
+    packages:
+    - r-base
+    - r-seurat
+    - r-dplyr
+    - r-patchwork
+    - r-scales
+    - r-cowplot
+    - r-ggplot2
+    - r-rcolorbrewer
+    - r-gplots
+    - r-soupx
+    - r-conflicted
+  phase4:
+    description: Phase 4 environment.
+    packages:
+    - r-base
+    - r-seurat
+    - r-dplyr
+    - r-patchwork
+    - r-scales
+    - r-cowplot
+    - r-ggplot2
+    - r-rcolorbrewer
+    - r-gplots
+    - r-soupx
+    - r-conflicted
+    - r-matrix
+    - r-reshape2
+    - r-cellassign
+    - r-loomr
+    - bioconductor-dropletutils
+    - bioconductor-mast
+    - bioconductor-singlecellexperiment
+    - bioconductor-org.hs.eg.db
+    - bioconductor-edger
+    - bioconductor-scater

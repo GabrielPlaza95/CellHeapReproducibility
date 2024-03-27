@@ -3,21 +3,25 @@
 set -euo pipefail
 
 SAMPLE="$1"
-OUTDIR="${PROJECT_DIR}/out/phase1"
+OUT_DIR="${PROJECT_DIR}/out/phase1"
 
 echo Dump fastq files from "${SAMPLE}.sra"
 date
 
-time fasterq-dump "${OUTDIR}/${SAMPLE}.sra" --threads 24 --split-files --temp /tmp --outdir "$OUTDIR"
+time fasterq-dump "${OUT_DIR}/${SAMPLE}.sra" \
+	--threads 24 \
+	--split-files \
+	--temp /tmp \
+	--outdir "$OUT_DIR"
 
 echo Compress "$SAMPLE" fastq files
 date
 
-gzip "${OUTDIR}/${SAMPLE}_1.fastq"
-gzip "${OUTDIR}/${SAMPLE}_2.fastq"
+gzip "${OUT_DIR}/${SAMPLE}_1.fastq"
+gzip "${OUT_DIR}/${SAMPLE}_2.fastq"
 
-mv "${OUTDIR}/${SAMPLE}_1.fastq.gz" "${OUTDIR}/${SAMPLE}_S1_L00_R1_001.fastq.gz"
-mv "${OUTDIR}/${SAMPLE}_2.fastq.gz" "${OUTDIR}/${SAMPLE}_S1_L00_R2_001.fastq.gz"
+mv "${OUT_DIR}/${SAMPLE}_1.fastq.gz" "${OUT_DIR}/${SAMPLE}_S1_L00_R1_001.fastq.gz"
+mv "${OUT_DIR}/${SAMPLE}_2.fastq.gz" "${OUT_DIR}/${SAMPLE}_S1_L00_R2_001.fastq.gz"
 
 echo Compressed "$SAMPLE" fastq files obtained
 date

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SAMPLE="$1"
+TRANSCRIPTOME="$2"
+COUNT="${CELLRANGER_PATH} count"
+IN_DIR="${PROJECT_DIR}/out/phase1"
+OUT_DIR="${PROJECT_DIR}/out/phase2"
+
+echo Run Cell Ranger count on sample "$SAMPLE"
+date
+
+time "$COUNT" --sample="$SAMPLE" \
+	--transcriptome="$TRANSCRIPTOME" \
+	--id="CRCD-${SAMPLE}" \
+	--fastqs="$IN_DIR" \
+	--output-dir="$OUT_DIR"
+
+echo Cell Ranger count finished running on sample "$SAMPLE"
+date
