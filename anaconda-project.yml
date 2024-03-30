@@ -22,6 +22,9 @@ variables:
     CELLRANGER_PATH:
       description: Full path to the cellranger executable.
       encrypted: false
+    TRANSCRIPTOME_PATH:
+      description: Full path to the reference transcriptome file.
+      encrypted: false
 
 env_specs:
   phase1:

@@ -11,6 +11,7 @@ __pycache__/
 
 # anaconda-project
 envs/*
+anaconda-project-local.yml
 
 # CellHeap
 out/*
