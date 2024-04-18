@@ -13,6 +13,9 @@ commands:
   crc:
     unix: ${PROJECT_DIR}/Source/Phase2/crc
     env_spec: phase2
+  qualctrl:
+    unix: ${PROJECT_DIR}/Source/Phase3/qualctrl
+    env_spec: phase3
 channels:
 - conda-forge
 - bioconda
