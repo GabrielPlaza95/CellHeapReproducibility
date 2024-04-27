@@ -1,5 +1,3 @@
-#!/usr/bin/env -S Rscript --vanilla
-
 library(Seurat)
 library(dplyr)
 library(patchwork)
@@ -11,6 +9,13 @@ library(gplots)
 library(SoupX)
 library(conflicted)
 
+# On error, save debugging info to file last.dump.rda
+dump_and_quit <- function() {
+  dump.frames(to.file = TRUE)
+  quit(status = 1)
+}
+options(error = dump_and_quit)
+
 args = commandArgs(trailingOnly=TRUE)
 
 if (length(args)==0) {
@@ -20,8 +25,8 @@ if (length(args)==0) {
 PROJECT_DIR <- Sys.getenv("PROJECT_DIR")
 
 SAMPLE <- args[1]
-IN_DIR <- paste(PROJECT_DIR, "/out/phase2/", SAMPLE, "/outs", sep="")
-OUT_DIR <- paste(PROJECT_DIR, "/out/phase3/", sep="")
+IN_DIR <- file.path(PROJECT_DIR, "out", "phase2", SAMPLE, "outs")
+OUT_DIR <- file.path(PROJECT_DIR, "out", "phase3")
 
 print(SAMPLE)
 print(IN_DIR)

@@ -17,8 +17,7 @@ time "$CELLRANGER_PATH" count --sample="$SAMPLE" \
 	--fastqs="$IN_DIR" \
 	--output-dir="$OUT_DIR" \
 	--create-bam=true \
-	--disable-ui \
-	--chemistry=ARC-v1
+	--disable-ui
 
 echo Cell Ranger count finished running on sample "$SAMPLE"
 date

@@ -20,8 +20,8 @@ date
 gzip "${OUT_DIR}/${SAMPLE}_1.fastq"
 gzip "${OUT_DIR}/${SAMPLE}_2.fastq"
 
-mv "${OUT_DIR}/${SAMPLE}_1.fastq.gz" "${OUT_DIR}/${SAMPLE}_S1_L00_R1_001.fastq.gz"
-mv "${OUT_DIR}/${SAMPLE}_2.fastq.gz" "${OUT_DIR}/${SAMPLE}_S1_L00_R2_001.fastq.gz"
+mv "${OUT_DIR}/${SAMPLE}_1.fastq.gz" "${OUT_DIR}/${SAMPLE}_S1_L001_R1_001.fastq.gz"
+mv "${OUT_DIR}/${SAMPLE}_2.fastq.gz" "${OUT_DIR}/${SAMPLE}_S1_L001_R2_001.fastq.gz"
 
 echo Compressed "$SAMPLE" fastq files obtained
 date
