@@ -16,6 +16,9 @@ commands:
   qualctrl:
     unix: Rscript --vanilla ${PROJECT_DIR}/Source/Phase3/qualctrl.R
     env_spec: phase3
+  cluster:
+    unix: Rscript --vanilla ${PROJECT_DIR}/Source/Phase4/cluster.R
+    env_spec: phase4
 channels:
 - conda-forge
 - bioconda
@@ -40,7 +43,9 @@ env_specs:
   phase3:
     description: Phase 3 environment.
     packages:
-    - r-base
+    - r-base=4.3.2
+    - r-matrix=1.6.3
+    - r-seuratobject
     - r-seurat
     - r-dplyr
     - r-patchwork

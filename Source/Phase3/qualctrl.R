@@ -54,14 +54,14 @@ out_sample_SpX <- adjustCounts(sample_SpX)
 sample <- CreateSeuratObject(counts = out_sample_SpX, project = SAMPLE, min.cells=1)
 
 #Calculate the percentage of mitochondrial RNA reads
-sample[["percent.mt"]] <- PercentageFeatureSet(sample, pattern = "^human----MT-")
+sample[["percent.mt"]] <- PercentageFeatureSet(sample, pattern = "^MT-")
 
 # Metrics
 feats <- c("nFeature_RNA", "nCount_RNA", "percent.mt")
 
 png(file.path(OUT_DIR, paste("before_filters_", SAMPLE, ".png", sep="")))
 
-VlnPlot(sample, features = feats, pt.size = 0.1, ncol = 3) + NoLegend()
+VlnPlot(sample, layer = "counts", features = feats, pt.size = 0.1, ncol = 3) + NoLegend()
 dev.off()
 
 # Step of quality control filters defined in previous analyzes based on Wauters et al, 2021
@@ -70,7 +70,7 @@ sample_filtered <- subset(sample, subset=nFeature_RNA>150 & nFeature_RNA<3000 & 
 
 png(file.path(OUT_DIR, paste("after_filters_", SAMPLE, ".png", sep="")))
 
-VlnPlot(sample_filtered, features = feats, pt.size = 0.1, ncol = 3) + NoLegend()
+VlnPlot(sample_filtered, layer = "counts", features = feats, pt.size = 0.1, ncol = 3) + NoLegend()
 dev.off()
 
 # The next steps involve looking for viral RNA in the samples - it just kepts the commands from the previous phase 3 script
@@ -85,25 +85,35 @@ write.table(out_test, file=features_file, quote=FALSE, sep='\t', col.names = TRU
 write.csv(sample_filtered@meta.data, file=metadata_file)
 
 # Import of seurat filter file
-sample <- read.table(features_file, sep='\t', header=T, row.names = 1)
+sample <- read.table(features_file, sep='\t', header=TRUE)
+
+print(sample[1:2,1:3])
 
 # Select rows containing sarscov2
-sample_sarscov2 <- sample[grep("virus-v6", row.names(sample)),,drop=FALSE]
+print(row.names(sample))
+
+covid_rows <- grep("virus-v6", row.names(sample))
+
+print(covid_rows)
+
+sample_sarscov2 <- sample[covid_rows,,drop=FALSE]
+
+print(sample_sarscov2[1:2,1:3])
 
 # Transpose data frame
 sample_sarscov2_transposta <- t(sample_sarscov2)
 
-# Print rows where all columns are zero 
-not_infected <- rownames(sample_sarscov2_transposta)[which(rowSums(sample_sarscov2_transposta)==0)]
+#print rows where all columns are zero
+not_infected <- rownames(sample_sarscov2_transposta[rowSums(sample_sarscov2)==0,])
 
-# Print rows where all columns are different of zero
-infected <- rownames(sample_sarscov2_transposta)[which(rowSums(sample_sarscov2_transposta)>0)]
+#print rows where some columns are different from zero
+infected <- rownames(sample_sarscov2_transposta[rowSums(sample_sarscov2)>0,])
 
+features_not_infected_file <- file.path(OUT_DIR, paste("features_not_infected_", SAMPLE, ".tsv", sep=""))
 features_infected_file <- file.path(OUT_DIR, paste("features_infected_", SAMPLE, ".tsv", sep=""))
-features_not_infected_file <- file.path(OUT_DIR, paste("features_not_infected", SAMPLE, ".tsv", sep=""))
 
 # Dataframe not infected 
 write.table(sample[,not_infected,drop=FALSE], file=features_infected_file, quote=FALSE, sep='\t', col.names=TRUE)
 
-# Dataframe  infected 
-write.table(sample[,infected,drop=FALSE], file=features_not_infected_file, quote=FALSE, sep='\t', col.names = TRUE)
+# Dataframe infected 
+write.table(sample[,infected,drop=FALSE], file=features_not_infected_file, quote=FALSE, sep='\t', col.names=TRUE)
