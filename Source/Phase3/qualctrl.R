@@ -87,33 +87,29 @@ write.csv(sample_filtered@meta.data, file=metadata_file)
 # Import of seurat filter file
 sample <- read.table(features_file, sep='\t', header=TRUE)
 
-print(sample[1:2,1:3])
-
 # Select rows containing sarscov2
-print(row.names(sample))
 
-covid_rows <- grep("virus-v6", row.names(sample))
-
-print(covid_rows)
+#covid_rows <- grep("virus-v6", row.names(sample))
+covid_rows <- grep("SARS", row.names(sample)) #TODO: verificar nome da feature
 
 sample_sarscov2 <- sample[covid_rows,,drop=FALSE]
 
-print(sample_sarscov2[1:2,1:3])
-
 # Transpose data frame
-sample_sarscov2_transposta <- t(sample_sarscov2)
+sample_sarscov2 <- t(sample_sarscov2)
+
+#print(sample_sarscov2)
 
 #print rows where all columns are zero
-not_infected <- rownames(sample_sarscov2_transposta[rowSums(sample_sarscov2)==0,])
+not_infected <- row.names(sample_sarscov2)[which(rowSums(sample_sarscov2)==0)]
 
 #print rows where some columns are different from zero
-infected <- rownames(sample_sarscov2_transposta[rowSums(sample_sarscov2)>0,])
+infected <- rownames(sample_sarscov2)[which(rowSums(sample_sarscov2)>0)]
 
 features_not_infected_file <- file.path(OUT_DIR, paste("features_not_infected_", SAMPLE, ".tsv", sep=""))
 features_infected_file <- file.path(OUT_DIR, paste("features_infected_", SAMPLE, ".tsv", sep=""))
 
 # Dataframe not infected 
-write.table(sample[,not_infected,drop=FALSE], file=features_infected_file, quote=FALSE, sep='\t', col.names=TRUE)
+write.table(sample[,not_infected,drop=FALSE], file=features_not_infected_file, quote=FALSE, sep='\t', col.names=TRUE)
 
 # Dataframe infected 
-write.table(sample[,infected,drop=FALSE], file=features_not_infected_file, quote=FALSE, sep='\t', col.names=TRUE)
+write.table(sample[,infected,drop=FALSE], file=features_infected_file, quote=FALSE, sep='\t', col.names=TRUE)

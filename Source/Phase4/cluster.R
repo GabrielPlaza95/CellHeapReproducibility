@@ -46,7 +46,7 @@ alldata.list = list()
 
 for (sample in args) {
   file <- file.path(IN_DIR, paste("features_not_infected_", sample, ".tsv", sep=""))
-  table <- read.table(file, header=FALSE, sep = "\t")
+  table <- read.table(file, header=TRUE, sep = "\t")
   alldata.list <- append(alldata.list, list(CreateSeuratObject(counts = table, project = sample)))
 }
 
@@ -55,11 +55,13 @@ for (sample in args) {
 normalize_and_find_features <- function(x) {
   x <- NormalizeData(x)
   x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000)
+  x
 }
 
-ifnb.list <- lapply(X = alldata.list, FUN = normalize_and_find_features)
+alldata.list <- lapply(X = alldata.list, FUN = normalize_and_find_features)
 
 features <- SelectIntegrationFeatures(object.list = alldata.list)
+
 immune.anchors <- FindIntegrationAnchors(object.list = alldata.list,  anchor.features = features)
 
 ##########
@@ -101,6 +103,8 @@ immune.combined <- FindClusters(immune.combined, resolution = 1.2)
 DefaultAssay(immune.combined) <- "RNA"
 
 # To convert Seurat object into SingleCellExperiment object
+immune.combined = JoinLayers(immune.combined)
+
 test.sce <- as.SingleCellExperiment(immune.combined)
 
 #Find markers for every cluster compared to all remaining cells
