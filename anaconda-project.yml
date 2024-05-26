@@ -59,8 +59,8 @@ env_specs:
   phase4:
     description: Phase 4 environment.
     packages:
-    - r-base=4.3.2
-    - r-matrix=1.6.3
+    - r-base
+    - r-matrix
     - r-seuratobject
     - r-seurat
     - r-dplyr
@@ -82,3 +82,5 @@ env_specs:
     - bioconductor-org.hs.eg.db
     - bioconductor-edger
     - bioconductor-scater
+    - tensorflow-gpu
+    - tensorflow-probability

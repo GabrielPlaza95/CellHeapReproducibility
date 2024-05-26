@@ -45,9 +45,16 @@ if (!dir.exists(OUT_DIR)) {
 alldata.list = list()
 
 for (sample in args) {
-  file <- file.path(IN_DIR, paste("features_not_infected_", sample, ".tsv", sep=""))
-  table <- read.table(file, header=TRUE, sep = "\t")
-  alldata.list <- append(alldata.list, list(CreateSeuratObject(counts = table, project = sample)))
+  #TODO mudar para arquivos not_infected
+  counts_file <- file.path(IN_DIR, paste("features_", sample, ".tsv", sep=""))
+  counts_table <- read.table(counts_file, header=TRUE, sep = "\t")
+  so <- CreateSeuratObject(counts = counts_table, project = sample)
+  
+  meta_file <- file.path(IN_DIR, paste("metadata_", sample, ".csv", sep=""))
+  meta_table <- read.csv(meta_file, header=TRUE, row.names=1)
+  so[[]] <- meta_table
+  
+  alldata.list <- append(alldata.list, list(so))
 }
 
 ########## MERGE #########
@@ -62,13 +69,17 @@ alldata.list <- lapply(X = alldata.list, FUN = normalize_and_find_features)
 
 features <- SelectIntegrationFeatures(object.list = alldata.list)
 
-immune.anchors <- FindIntegrationAnchors(object.list = alldata.list,  anchor.features = features)
+immune.anchors <- FindIntegrationAnchors(object.list = alldata.list, anchor.features = features)
+
+print(immune.anchors)
 
 ##########
 
 #Create the integrated assays
 immune.combined <- IntegrateData(anchorset = immune.anchors)
 DefaultAssay(immune.combined) <- "integrated"
+
+print(immune.combined)
 
 # ScaleData() pattern - to dimension high variable genes (previously identified - 2000). It does not affect the PCA and clustering results.
 immune.combined <- ScaleData(immune.combined)
@@ -105,10 +116,13 @@ DefaultAssay(immune.combined) <- "RNA"
 # To convert Seurat object into SingleCellExperiment object
 immune.combined = JoinLayers(immune.combined)
 
+print(immune.combined)
+
 test.sce <- as.SingleCellExperiment(immune.combined)
 
+#TODO reintroduzir esta etapa
 #Find markers for every cluster compared to all remaining cells
-immune.combined <- FindAllMarkers(immune.combined, assay = 'RNA',logfc.threshold = 0.25, only.pos = TRUE, test.use = 'MAST')
+#immune.combined <- FindAllMarkers(immune.combined, assay = 'RNA',logfc.threshold = 0.25, only.pos = TRUE, test.use = 'MAST')
 
 # Matrix construction
 # Marker list - based on cellassign vignette
@@ -145,19 +159,43 @@ marker_gene_list <- list(
   AT2 = c("human----SFTPC", "human----SFTPA1", "human----SFTPB")
 )
 
-marcadores <- marker_list_to_mat(marker_gene_list, include_other = FALSE)
+#TODO voltar a usar a lista real
+#marcadores <- marker_list_to_mat(marker_gene_list, include_other = FALSE)
 
-# Markers identification inside the dataset
-# https://nbisweden.github.io/single-cell_sib_scilifelab/session-differential-expression/celltype_assignment.html
+print(test.sce)
+#print(rownames(test.sce))
+
+marker_gene_list_teste <- list(
+  TCD4Th1 = sample(rownames(test.sce), 3),
+  TCD4Th2 = sample(rownames(test.sce), 6)
+)
+
+marcadores <- marker_list_to_mat(marker_gene_list_teste, include_other = FALSE)
+
+marcadores_teste <- match(rownames(marcadores), rownames(test.sce))
+stopifnot(all(!is.na(marcadores_teste)))
+
+test.sce <- test.sce[marcadores_teste,]
+stopifnot(all.equal(rownames(marcadores), rownames(test.sce)))
+
+#TODO resolve erro do cellassign mas por que este filtro é necessário?
+test.sce <- test.sce[which(rowSums(counts(test.sce)) > 0),]
+test.sce <- test.sce[,which(colSums(counts(test.sce)) > 0)]
+
+#Ajusta lista de marcadores após filtro anterior
 shared <- intersect(rownames(marcadores), rownames(test.sce))
+marcadores <- marcadores[shared,]
 
 # Size Factors
 test.sce <- scran::computeSumFactors(test.sce)
-s1 <- sizeFactors(test.sce)
+s1 <- sizeFactors(test.sce, onAbsence = "warn")
+
+print(marcadores)
+print(test.sce)
 
 # Cellassign fit - based on cellassign vignette
 # https://irrationone.github.io/cellassign/articles/introduction-to-cellassign.html#constructing-a-marker-gene-matrix
-fit <- cellassign(exprs_obj = test.sce[shared,], marker_gene_info = marcadores[shared,], s = s1, learning_rate = 1e-2, shrinkage = TRUE,  verbose = TRUE)
+fit <- cellassign(exprs_obj = test.sce, marker_gene_info = marcadores, s = s1, learning_rate = 1e-2, shrinkage = TRUE,  verbose = TRUE)
 
 # Cell types
 celltypes(fit,assign_prob = 0.95)

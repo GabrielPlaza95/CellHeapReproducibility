@@ -76,6 +76,8 @@ dev.off()
 # The next steps involve looking for viral RNA in the samples - it just kepts the commands from the previous phase 3 script
 # Export .tsv and .csv files
 
+#TODO Exportar metadados do arquivo que sera lido na fase 4 (not_infected)
+
 features_file <- file.path(OUT_DIR, paste("features_", SAMPLE, ".tsv", sep=""))
 metadata_file <- file.path(OUT_DIR, paste("metadata_", SAMPLE, ".csv", sep=""))
 
