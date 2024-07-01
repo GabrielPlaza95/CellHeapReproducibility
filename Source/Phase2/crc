@@ -11,7 +11,7 @@ date
 
 mkdir -p "$OUT_DIR"
 
-time "$CELLRANGER_PATH" count --sample="$SAMPLE" \
+"$CELLRANGER_PATH" count --sample="$SAMPLE" \
 	--transcriptome="$TRANSCRIPTOME_PATH" \
 	--id="CRCD-${SAMPLE}" \
 	--fastqs="$IN_DIR" \

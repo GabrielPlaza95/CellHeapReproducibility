@@ -5,21 +5,22 @@ description: >
   results and deployable on supercomputers.
 commands:
   ipv:
-    unix: ${PROJECT_DIR}/Source/Phase1/ipv
+    unix: time ${PROJECT_DIR}/Source/Phase1/ipv
     env_spec: phase1
   fastq:
-    unix: ${PROJECT_DIR}/Source/Phase1/fastq
+    unix: time ${PROJECT_DIR}/Source/Phase1/fastq
     env_spec: phase1
   crc:
-    unix: ${PROJECT_DIR}/Source/Phase2/crc
+    unix: time ${PROJECT_DIR}/Source/Phase2/crc
     env_spec: phase2
   qualctrl:
-    unix: Rscript --vanilla ${PROJECT_DIR}/Source/Phase3/qualctrl.R
+    unix: time Rscript --vanilla ${PROJECT_DIR}/Source/Phase3/qualctrl.R
     env_spec: phase3
   cluster:
-    unix: Rscript --vanilla ${PROJECT_DIR}/Source/Phase4/cluster.R
+    unix: time Rscript --vanilla ${PROJECT_DIR}/Source/Phase4/cluster.R
     env_spec: phase4
 channels:
+- nvidia
 - conda-forge
 - bioconda
 platforms:
@@ -62,7 +63,7 @@ env_specs:
     - r-base
     - r-matrix
     - r-seuratobject
-    - r-seurat
+    - r-seurat=5
     - r-dplyr
     - r-patchwork
     - r-scales
@@ -74,7 +75,7 @@ env_specs:
     - r-conflicted
     - r-matrix
     - r-reshape2
-    - r-cellassign
+#    - r-cellassign
     - r-loomr
     - bioconductor-dropletutils
     - bioconductor-mast
@@ -82,5 +83,8 @@ env_specs:
     - bioconductor-org.hs.eg.db
     - bioconductor-edger
     - bioconductor-scater
+#    - cudatoolkit
+#    - cudnn
+    - tensorflow=2.1.0
     - tensorflow-gpu
     - tensorflow-probability

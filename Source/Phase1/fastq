@@ -8,7 +8,7 @@ OUT_DIR="${PROJECT_DIR}/out/phase1"
 echo Dump fastq files from "${SAMPLE}.sra"
 date
 
-time fasterq-dump "${OUT_DIR}/${SAMPLE}.sra" \
+fasterq-dump "${OUT_DIR}/${SAMPLE}.sra" \
 	--threads 24 \
 	--split-files \
 	--temp /tmp \

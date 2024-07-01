@@ -8,16 +8,16 @@ OUT_DIR="${PROJECT_DIR}/out/phase1"
 echo Dump info and prefetch "$SAMPLE"
 date
 
-time vdb-dump --info "$SAMPLE"
+vdb-dump --info "$SAMPLE"
 
-time prefetch "$SAMPLE" \
+prefetch "$SAMPLE" \
 	--max-size 1000000000 \
 	--output-file "${OUT_DIR}/${SAMPLE}.sra"
 
 echo Validate "$SAMPLE"
 date
 
-time vdb-validate "${OUT_DIR}/${SAMPLE}.sra"
+vdb-validate "${OUT_DIR}/${SAMPLE}.sra"
 
 echo "$SAMPLE" validation completed
 date
