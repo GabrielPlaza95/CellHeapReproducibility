@@ -272,20 +272,20 @@ table(test.sce$cellassign_type)
 # dev.off()
 
 #Counting number of cellsTCD4Th1
-TCD4Th1.only <- test.sce[, test.sce$cellassign_type == "TCD4Th1"]
-ncol(counts(TCD4Th1.only))
-print("TCD4Th1 - greater than zero expression of a gene - FCGR1A")
-TCD4Th1.FCGR1A.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR1A',] > 0)]
-ncol(counts(TCD4Th1.FCGR1A.only))
-print("TCD4Th1 - greater than zero expression of a gene  - FCGR2A")
-TCD4Th1.FCGR2A.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR2A',] > 0)]
-ncol(counts(TCD4Th1.FCGR2A.only))
-print("TCD4Th1 - greater than zero expression of a gene  - FCGR2B")
-TCD4Th1.FCGR2B.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR2B',] > 0)]
-ncol(counts(TCD4Th1.FCGR2B.only))
-print("TCD4Th1 - greater than zero expression of a gene  - FCGR3A")
-TCD4Th1.FCGR3A.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR3A',] > 0)]
-ncol(counts(TCD4Th1.FCGR3A.only))
-print("TCD4Th1 - greater than zero expression of a gene  - FCGR3B")
-TCD4Th1.FCGR3B.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR3B',] > 0)]
-ncol(counts(TCD4Th1.FCGR3B.only))
+# TCD4Th1.only <- test.sce[, test.sce$cellassign_type == "TCD4Th1"]
+# ncol(counts(TCD4Th1.only))
+# print("TCD4Th1 - greater than zero expression of a gene - FCGR1A")
+# TCD4Th1.FCGR1A.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR1A',] > 0)]
+# ncol(counts(TCD4Th1.FCGR1A.only))
+# print("TCD4Th1 - greater than zero expression of a gene  - FCGR2A")
+# TCD4Th1.FCGR2A.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR2A',] > 0)]
+# ncol(counts(TCD4Th1.FCGR2A.only))
+# print("TCD4Th1 - greater than zero expression of a gene  - FCGR2B")
+# TCD4Th1.FCGR2B.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR2B',] > 0)]
+# ncol(counts(TCD4Th1.FCGR2B.only))
+# print("TCD4Th1 - greater than zero expression of a gene  - FCGR3A")
+# TCD4Th1.FCGR3A.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR3A',] > 0)]
+# ncol(counts(TCD4Th1.FCGR3A.only))
+# print("TCD4Th1 - greater than zero expression of a gene  - FCGR3B")
+# TCD4Th1.FCGR3B.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR3B',] > 0)]
+# ncol(counts(TCD4Th1.FCGR3B.only))

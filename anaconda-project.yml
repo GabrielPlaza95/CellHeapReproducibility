@@ -20,6 +20,7 @@ commands:
     unix: time Rscript --vanilla ${PROJECT_DIR}/Source/Phase4/cluster.R
     env_spec: phase4
 channels:
+- gabriel_plaza_95
 - nvidia
 - conda-forge
 - bioconda
@@ -75,7 +76,7 @@ env_specs:
     - r-conflicted
     - r-matrix
     - r-reshape2
-#    - r-cellassign
+    - r-cellassign
     - r-loomr
     - bioconductor-dropletutils
     - bioconductor-mast
@@ -83,8 +84,8 @@ env_specs:
     - bioconductor-org.hs.eg.db
     - bioconductor-edger
     - bioconductor-scater
-#    - cudatoolkit
-#    - cudnn
-    - tensorflow=2.1.0
+    - cudatoolkit
+    - cudnn
+    - tensorflow
     - tensorflow-gpu
     - tensorflow-probability
