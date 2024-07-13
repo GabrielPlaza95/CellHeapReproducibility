@@ -12,7 +12,7 @@ commands:
     env_spec: phase1
   crc:
     unix: time ${PROJECT_DIR}/Source/Phase2/crc
-    env_spec: phase2
+#   env_spec: phase2
   qualctrl:
     unix: time Rscript --vanilla ${PROJECT_DIR}/Source/Phase3/qualctrl.R
     env_spec: phase3
@@ -39,9 +39,9 @@ env_specs:
     description: Phase 1 environment.
     packages:
     - sra-tools
-  phase2:
-    description: Phase 2 environment.
-    packages: []
+# phase2:
+#   description: Phase 2 environment.
+#   packages: []
   phase3:
     description: Phase 3 environment.
     packages:
