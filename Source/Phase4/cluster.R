@@ -46,12 +46,11 @@ if (!dir.exists(OUT_DIR)) {
 alldata.list = list()
 
 for (sample in args) {
-  #TODO mudar para arquivos not_infected
-  counts_file <- file.path(IN_DIR, paste("features_", sample, ".tsv", sep=""))
+  counts_file <- file.path(IN_DIR, paste("features_not_infected_", sample, ".tsv", sep=""))
   counts_table <- read.table(counts_file, header=TRUE, sep = "\t")
   so <- CreateSeuratObject(counts = counts_table, project = sample)
   
-  meta_file <- file.path(IN_DIR, paste("metadata_", sample, ".csv", sep=""))
+  meta_file <- file.path(IN_DIR, paste("metadata_not_infected_", sample, ".csv", sep=""))
   meta_table <- read.csv(meta_file, header=TRUE, row.names=1)
   so[[]] <- meta_table
   
@@ -118,64 +117,51 @@ immune.combined <- FindClusters(immune.combined, resolution = 1.2)
 DefaultAssay(immune.combined) <- "RNA"
 
 # To convert Seurat object into SingleCellExperiment object
-immune.combined = JoinLayers(immune.combined)
+immune.combined <- JoinLayers(immune.combined)
+
+#Find markers for every cluster compared to all remaining cells
+immune.combined.markers <- FindAllMarkers(immune.combined, assay = 'RNA',logfc.threshold = 0.25, only.pos = TRUE, test.use = 'MAST')
 
 test.sce <- as.SingleCellExperiment(immune.combined)
 
-#TODO reintroduzir esta etapa
-#Find markers for every cluster compared to all remaining cells
-#immune.combined <- FindAllMarkers(immune.combined, assay = 'RNA',logfc.threshold = 0.25, only.pos = TRUE, test.use = 'MAST')
-
 # Matrix construction
-# Marker list - based on cellassign vignette
-# https://irrationone.github.io/cellassign/articles/introduction-to-cellassign.html#constructing-a-marker-gene-matrix
 marker_gene_list <- list(
-  InflammatoryMacrophages = c("human----STAT1", "human----TNF", "human----IL6", "human----CD68", "human----CD14", "human----IL1B", "human----IRF5"),
-  NonInflammatoryMacrophages = c("human----CD14", "human----CD68","human----IRF4", "human----IL10", "human----TGFB1","human----ARG1", "human----TGFBR2", "human----CD163"),
-  Neutrophils = c("human----FCGR3B", "human----PI3", "human----G0S2", "human----ELANE", "human----LCN2", "human----ORM1", "human----MMP8"),
-  MastCells = c("human----CPA3","human----FCER1A", "human----TPSAB1", "human----RGS13", "human----KIT", "human----TPSG1", "human----SLC18A2", "human----TPSB2"),
-  Basophils = c("human----ANPEP", "human----CD22", "human----FCGR2B", "human----FCER1A","human----CD33", "human----IL3RA", "human----ENPP3"),
+  InflammatoryMacrophages = c("STAT1", "TNF", "IL6", "CD68", "CD14", "IL1B", "IRF5"),
+  NonInflammatoryMacrophages = c("CD14", "CD68","IRF4", "IL10", "TGFB1","ARG1", "TGFBR2", "CD163"),
+  Neutrophils = c("FCGR3B", "PI3", "G0S2", "ELANE", "LCN2", "ORM1", "MMP8"),
+  MastCells = c("CPA3","FCER1A", "TPSAB1", "RGS13", "KIT", "TPSG1", "SLC18A2", "TPSB2"),
+  Basophils = c("ANPEP", "CD22", "FCGR2B", "FCER1A","CD33", "IL3RA", "ENPP3"),
   #innate lymphoid
-  NKCells = c("human----NCR1", "human----NCAM1", "human----KIR3DL1", "human----ITGAE", "human----KLRC1", "human----NKG7"),
-  ILC1sCitotoxic= c("human----IFNG","human----TBX21", "human----EOMES", "human----NCR2", "human----ITGAE"),
-  ILC1sNonCitotoxic= c("human----IFNG","human----IL7R", "human----TBX21"),
-  ILC2s = c("human----GATA3", "human----PTGDR2", "human----KLRB1", "human----IL33", "human----IL1RL1", "human----KLRG1"),
-  ILC3ssubpopNCRneg = c("human----RORGT", "human----IL23R", "human----IL17A"),
-  ILC3ssubpopNCRpos = c("human----NCR2", "human----NCR1", "human----RORGT", "human----TBX21"),
-  LTi  = c("human----CD4", "human----IL7R", "human----CCR6", "human----RORGT"),
+  NKCells = c("NCR1", "NCAM1", "KIR3DL1", "ITGAE", "KLRC1", "NKG7"),
+  ILC1sCitotoxic= c("IFNG","TBX21", "EOMES", "NCR2", "ITGAE"),
+  ILC1sNonCitotoxic= c("IFNG","IL7R", "TBX21"),
+  ILC2s = c("GATA3", "PTGDR2", "KLRB1", "IL33", "IL1RL1", "KLRG1"),
+  ILC3ssubpopNCRneg = c("RORGT", "IL23R", "IL17A"),
+  ILC3ssubpopNCRpos = c("NCR2", "NCR1", "RORGT", "TBX21"),
+  LTi  = c("CD4", "IL7R", "CCR6", "RORGT"),
   # adaptiive lymphoid
-  TCD4Th1 = c("human----CD3E", "human----CD4","human----TBX21", "human----IFNG", "human----TNF"),
-  TCD4Th2 = c("human----CD3E", "human----CD4", "human----GATA3", "human----IL4", "human----IL5", "human----IL13"),
-  TCD4Th17 = c("human----CD3E", "human----CD4","human----IL17A", "human----IL17F", "human----IL21"),
-  TCD4TReg = c("human----CD3E", "human----CD4", "human----FOXP3", "human----TGFB1", "human----IL10"),
-  TCD8Citotoxic = c("human----GNLY", "human----PRF1", "human----CD3E", "human----CD8A"),
-  TGammaDeltaCells = c("human----TRGC1", "human----TRDC", "human----CD3E"),
-  PlasmaCells = c("human----CD79A", "human----TNFRSF13C", "human----KRT20", "human----IGHM", "human----IGHD", "human----IGKC","human----IGLC2", "human----JCHAIN", "human----XBP1", "human----MZB1"),
-  BregCells = c("human----CD19", "human----CD24", "human----CD27", "human----GZMB", "human----IL2RA", "human----TFRC","human----CD274"),
+  TCD4Th1 = c("CD3E", "CD4","TBX21", "IFNG", "TNF"),
+  TCD4Th2 = c("CD3E", "CD4", "GATA3", "IL4", "IL5", "IL13"),
+  TCD4Th17 = c("CD3E", "CD4","IL17A", "IL17F", "IL21"),
+  TCD4TReg = c("CD3E", "CD4", "FOXP3", "TGFB1", "IL10"),
+  TCD8Citotoxic = c("GNLY", "PRF1", "CD3E", "CD8A"),
+  TGammaDeltaCells = c("TRGC1", "TRDC", "CD3E"),
+  PlasmaCells = c("CD79A", "TNFRSF13C", "KRT20", "IGHM", "IGHD", "IGKC","IGLC2", "JCHAIN", "XBP1", "MZB1"),
+  BregCells = c("CD19", "CD24", "CD27", "GZMB", "IL2RA", "TFRC","CD274"),
   # epithelial
-  Secretory = c("human----SCGB1A1", "human----SCGB3A1", "human----MSMB"),
-  Basal = c("human----KRT5", "human----AQP3", "human----TP63"),
-  Ciliated = c("human----CAPS", "human----TPPP3", "human----RSPH1"),
-  Squamous = c("human----KRT13", "human----KRT4", "human----SPRR3"),
-  Inflammatory = c("human----KRT8", "human----KRT18", "human----MMP7"),
-  AT2 = c("human----SFTPC", "human----SFTPA1", "human----SFTPB")
+  Secretory = c("SCGB1A1", "SCGB3A1", "MSMB"),
+  Basal = c("KRT5", "AQP3", "TP63"),
+  Ciliated = c("CAPS", "TPPP3", "RSPH1"),
+  Squamous = c("KRT13", "KRT4", "SPRR3"),
+  Inflammatory = c("KRT8", "KRT18", "MMP7"),
+  AT2 = c("SFTPC", "SFTPA1", "SFTPB")
 )
 
-#TODO voltar a usar a lista real
-#marcadores <- marker_list_to_mat(marker_gene_list, include_other = FALSE)
+marcadores <- marker_list_to_mat(marker_gene_list, include_other = FALSE)
 
-marker_gene_list_teste <- list(
-  TCD4Th1 = sample(rownames(test.sce), 3),
-  TCD4Th2 = sample(rownames(test.sce), 6)
-)
-
-marcadores <- marker_list_to_mat(marker_gene_list_teste, include_other = FALSE)
-
-marcadores_teste <- match(rownames(marcadores), rownames(test.sce))
-stopifnot(all(!is.na(marcadores_teste)))
-
-test.sce <- test.sce[marcadores_teste,]
-stopifnot(all.equal(rownames(marcadores), rownames(test.sce)))
+# Considera apenas marcadores que existem na amostra
+shared <- intersect(rownames(marcadores), rownames(test.sce))
+test.sce <- test.sce[shared,]
 
 # Garante que não nenhuma coluna ou linha esteja vazia
 test.sce <- test.sce[which(rowSums(counts(test.sce)) > 0),]
@@ -189,103 +175,17 @@ marcadores <- marcadores[shared,]
 test.sce <- scran::computeSumFactors(test.sce)
 s1 <- sizeFactors(test.sce, onAbsence = "warn")
 
-# Cellassign fit - based on cellassign vignette
-# https://irrationone.github.io/cellassign/articles/introduction-to-cellassign.html#constructing-a-marker-gene-matrix
+# Cellassign fit
 fit <- cellassign(exprs_obj = test.sce, marker_gene_info = marcadores, s = s1, learning_rate = 1e-2, shrinkage = TRUE,  verbose = TRUE)
 
-# Cell types
-celltypes(fit,assign_prob = 0.95)
+test.sce$cellassign_type <- celltypes(fit, assign_prob = 0.95)
 
-# https://bioconductor.org/packages/devel/bioc/vignettes/scater/inst/doc/overview.html
-# https://bioconductor.riken.jp/packages/3.4/bioc/vignettes/scater/inst/doc/vignette.html#plots-of-expression-values
-# https://www.singlecellcourse.org/single-cell-rna-seq-analysis-using-seurat.html#cell-type-annotation-using-singler
-# Add a column - cell types identified by the cellassign in the test.sce object
-test.sce$cellassign_type <- celltypes(fit,assign_prob = 0.95)
+# Plot heatmap
+dpi = 300
+png(file=file.path(OUT_DIR, "heatmap.png"), width = dpi*30, height = dpi*24, units = "px", res = dpi, type='cairo')
+pheatmap::pheatmap(cellprobs(fit))
 
-# Number of identified cell types
-table(test.sce$cellassign_type)
-
-# Output file names - total_violin_XX.png - it is possible to create other output files formats
-# dpi=300
-# png(file=file.path(OUT_DIR, "total_violin_fc.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotExpression(test.sce, features = c("human----FCGRT","human----FCGR1A", "human----FGL2", "human----FCGR2B", "human----FCAR","human----FCER1A","human----TRIM21", "human----FCGR3A", "human----FCGR3B","human----FCGR2A"), x = "cellassign_type",colour_by = 'cellassign_type')
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_violin_fc2.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotExpression(test.sce, features = c("human----FCGRT","human----FCGR1A", "human----FGL2", "human----FCGR2B"), x = "cellassign_type",colour_by = 'cellassign_type')
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_violin_fc3.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotExpression(test.sce, features = c("human----FCAR","human----FCER1A","human----TRIM21", "human----FCGR3A", "human----FCGR3B"), x = "cellassign_type",colour_by = 'cellassign_type')
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_violin_vs.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotExpression(test.sce, features = c("human----B2M","human----FCER1G", "human----HCK", "human----SYK","human----RAF1", "human----MAPK8","human----MAPK11","human----MAPK1", "human----LYN", "human----FYN", "human----LAT","human----LCP2", "human----PTPN6", "human----PTPN11","human----INPP5D", "human----BTK","human----UBE2W","human----UBE2N", "human----UBE2V2", "human----PSMD14", "human----IKBKG","human----NFKB1", "human----NFKB2", "human----VCP","human----CGAS", "human----DDX58"), x = "cellassign_type",colour_by = 'cellassign_type')
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_violin_vs2.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotExpression(test.sce, features = c("human----B2M","human----FCER1G", "human----HCK", "human----SYK","human----RAF1", "human----MAPK8","human----MAPK11","human----MAPK1"), x = "cellassign_type",colour_by = 'cellassign_type')
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_violin_vs3.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotExpression(test.sce, features = c("human----LYN", "human----FYN", "human----LAT","human----LCP2", "human----PTPN6", "human----PTPN11","human----INPP5D", "human----BTK"), x = "cellassign_type",colour_by = 'cellassign_type')
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_violin_vs4.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotExpression(test.sce, features = c("human----UBE2W","human----UBE2N", "human----UBE2V2", "human----PSMD14", "human----IKBKG","human----NFKB1", "human----NFKB2", "human----VCP","human----CGAS", "human----DDX58"), x = "cellassign_type",colour_by = 'cellassign_type')
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_violin_cito.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotExpression(test.sce, features = c("human----IFNG", "human----IFNA1", "human----TNF", "human----IL18","human----IL1B", "human----IL10","human----CCL5","human----IL6", "human----IL4", "human----CCL2", "human----CXCL10","human----CCL3", "human----CXCL8","human----CX3CL1", "human----TGFB1"), x = "cellassign_type",colour_by = 'cellassign_type')
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_violin_cito2.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotExpression(test.sce, features = c("human----IFNG","human----IFNA1", "human----TNF", "human----IL18","human----IL1B", "human----IL10","human----CCL5","human----IL6"), x = "cellassign_type",colour_by = 'cellassign_type')
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_violin_cito3.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotExpression(test.sce, features = c("human----IL4", "human----CCL2", "human----CXCL10","human----CCL3", "human----CXCL8","human----CX3CL1", "human----TGFB1"), x = "cellassign_type",colour_by = 'cellassign_type')
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_dots_fc.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotDots(test.sce, features = c("human----FCGRT","human----FCGR1A", "human----FGL2", "human----FCGR2B","human----FCAR","human----FCER1A","human----TRIM21", "human----FCGR3A", "human----FCGR3B"), group='cellassign_type')
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_dots_vs.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotDots(test.sce, features = c("human----B2M","human----FCER1G", "human----HCK", "human----SYK","human----RAF1", "human----MAPK8","human----MAPK11","human----MAPK1", "human----LYN", "human----FYN", "human----LAT","human----LCP2", "human----PTPN6", "human----PTPN11","human----INPP5D", "human----BTK","human----UBE2W","human----UBE2N", "human----UBE2V2", "human----PSMD14", "human----IKBKG","human----NFKB1", "human----NFKB2", "human----VCP","human----CGAS", "human----DDX58"), group='cellassign_type')
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_dots_cito2.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotDots(test.sce, features = c("human----IFNG", "human----TNF", "human----IL18","human----IL1B", "human----IL10","human----CCL5","human----IL6", "human----IL4", "human----CCL2", "human----CXCL10","human----CCL3", "human----CXCL8","human----CX3CL1", "human----TGFB1"), group='cellassign_type')
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_heatmap_fc.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotHeatmap(test.sce, features = c("human----FCGRT","human----FCGR1A", "human----FGL2", "human----FCGR2B","human----FCAR","human----FCER1A","human----TRIM21", "human----FCGR3A", "human----FCGR3B"))
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_heatmap_vs.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotHeatmap(test.sce, features = c("human----B2M","human----FCER1G", "human----HCK", "human----SYK","human----RAF1", "human----MAPK8","human----MAPK11","human----MAPK1", "human----LYN", "human----FYN", "human----LAT","human----LCP2", "human----PTPN6", "human----PTPN11","human----INPP5D", "human----BTK","human----UBE2W","human----UBE2N", "human----UBE2V2", "human----PSMD14", "human----IKBKG","human----NFKB1", "human----NFKB2", "human----VCP","human----CGAS", "human----DDX58"))
-# dev.off()
-# 
-# png(file=file.path(OUT_DIR, "total_heatmap_cito.png"), width = dpi*20, height = dpi*14, units = "px",res = dpi,type='cairo')
-# plotHeatmap(test.sce, features = c("human----IFNG","human----IFNA1", "human----TNF", "human----IL18","human----IL1B", "human----IL10","human----CCL5","human----IL6", "human----IL4", "human----CCL2", "human----CXCL10","human----CCL3", "human----CXCL8","human----CX3CL1", "human----TGFB1"))
-# dev.off()
-
-#Counting number of cellsTCD4Th1
-# TCD4Th1.only <- test.sce[, test.sce$cellassign_type == "TCD4Th1"]
-# ncol(counts(TCD4Th1.only))
-# print("TCD4Th1 - greater than zero expression of a gene - FCGR1A")
-# TCD4Th1.FCGR1A.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR1A',] > 0)]
-# ncol(counts(TCD4Th1.FCGR1A.only))
-# print("TCD4Th1 - greater than zero expression of a gene  - FCGR2A")
-# TCD4Th1.FCGR2A.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR2A',] > 0)]
-# ncol(counts(TCD4Th1.FCGR2A.only))
-# print("TCD4Th1 - greater than zero expression of a gene  - FCGR2B")
-# TCD4Th1.FCGR2B.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR2B',] > 0)]
-# ncol(counts(TCD4Th1.FCGR2B.only))
-# print("TCD4Th1 - greater than zero expression of a gene  - FCGR3A")
-# TCD4Th1.FCGR3A.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR3A',] > 0)]
-# ncol(counts(TCD4Th1.FCGR3A.only))
-# print("TCD4Th1 - greater than zero expression of a gene  - FCGR3B")
-# TCD4Th1.FCGR3B.only <- TCD4Th1.only[,which(assay(TCD4Th1.only)['human----FCGR3B',] > 0)]
-# ncol(counts(TCD4Th1.FCGR3B.only))
+#Plot the expression of a given gene with cellassign_type coloring.
+dpi = 300
+png(file=file.path(OUT_DIR, "violin_tnf.png"), width = dpi*30, height = dpi*24, units = "px",res = dpi,type='cairo')
+plotExpression(test.sce, features = "TNF", x = "cellassign_type", colour_by = 'cellassign_type')

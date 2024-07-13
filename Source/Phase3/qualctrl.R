@@ -74,44 +74,37 @@ VlnPlot(sample_filtered, layer = "counts", features = feats, pt.size = 0.1, ncol
 dev.off()
 
 # The next steps involve looking for viral RNA in the samples - it just kepts the commands from the previous phase 3 script
+
 # Export .tsv and .csv files
-
-#TODO Exportar metadados do arquivo que sera lido na fase 4 (not_infected)
-
 features_file <- file.path(OUT_DIR, paste("features_", SAMPLE, ".tsv", sep=""))
 metadata_file <- file.path(OUT_DIR, paste("metadata_", SAMPLE, ".csv", sep=""))
 
-out_test <- as.matrix(sample_filtered@assays$RNA$counts)
+sample <- as.matrix(sample_filtered@assays$RNA$counts)
 
-write.table(out_test, file=features_file, quote=FALSE, sep='\t', col.names = TRUE)
+write.table(sample, file=features_file, quote=FALSE, sep='\t', col.names = TRUE)
 write.csv(sample_filtered@meta.data, file=metadata_file)
 
-# Import of seurat filter file
-sample <- read.table(features_file, sep='\t', header=TRUE)
-
 # Select rows containing sarscov2
-
 #covid_rows <- grep("virus-v6", row.names(sample))
-covid_rows <- grep("SARS", row.names(sample)) #TODO: verificar nome da feature
+covid_rows <- grep("SARS", row.names(sample))
 
 sample_sarscov2 <- sample[covid_rows,,drop=FALSE]
 
 # Transpose data frame
 sample_sarscov2 <- t(sample_sarscov2)
 
-#print(sample_sarscov2)
-
-#print rows where all columns are zero
 not_infected <- row.names(sample_sarscov2)[which(rowSums(sample_sarscov2)==0)]
-
-#print rows where some columns are different from zero
 infected <- rownames(sample_sarscov2)[which(rowSums(sample_sarscov2)>0)]
 
 features_not_infected_file <- file.path(OUT_DIR, paste("features_not_infected_", SAMPLE, ".tsv", sep=""))
+metadata_not_infected_file <- file.path(OUT_DIR, paste("metadata_not_infected_", SAMPLE, ".csv", sep=""))
 features_infected_file <- file.path(OUT_DIR, paste("features_infected_", SAMPLE, ".tsv", sep=""))
+metadata_infected_file <- file.path(OUT_DIR, paste("metadata_infected_", SAMPLE, ".csv", sep=""))
 
 # Dataframe not infected 
 write.table(sample[,not_infected,drop=FALSE], file=features_not_infected_file, quote=FALSE, sep='\t', col.names=TRUE)
+write.csv(sample_filtered@meta.data[not_infected,], file=metadata_not_infected_file)
 
 # Dataframe infected 
 write.table(sample[,infected,drop=FALSE], file=features_infected_file, quote=FALSE, sep='\t', col.names=TRUE)
+write.csv(sample_filtered@meta.data[infected,], file=metadata_infected_file)
